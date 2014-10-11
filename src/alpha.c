@@ -2,12 +2,17 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "createPNG.h"
+#include "stb_image.h"
 
 void show_alpha_layer(unsigned char*, int, int, unsigned char*);
 
 void alpha(char* filename) {
 	int width, height, depth;
 	unsigned char *data = stbi_load(filename, &width, &height, &depth, 0);
+	if(data == NULL) {
+		printf("ERROR: alpha.c in alpha(): stbi_load() failed\n");
+		exit(-1);
+	}
 
 	if(depth < 4) {
 		printf("No alpha channel\n");
@@ -35,6 +40,8 @@ void alpha(char* filename) {
 	}
 	else
 		printf("irregularity were not found on alpha channel\n");
+
+	stbi_image_free(data);
 }
 
 /*

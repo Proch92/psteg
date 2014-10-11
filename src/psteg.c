@@ -2,6 +2,8 @@
 #include <stdio.h>
 #include <argp.h>
 #include "psteg.h"
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
 
 const char *argp_program_version = "psteg 0.1";
 const char *argp_program_bug_address = "<proch92@gmail.com>";
@@ -52,16 +54,13 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state) {
 			break;
 
 		case ARGP_KEY_ARG:
-			if (state->arg_num != 1)
-				argp_usage (state);
-
-			arguments->filearg = arg;
+			if(state->arg_num == 0)
+				arguments->filearg = arg;
+			else
+				return ARGP_ERR_UNKNOWN;
 			break;
 
 		case ARGP_KEY_END:
-			if (state->arg_num < 2)
-				/* Not enough arguments. */
-				argp_usage (state);
 			break;
 
 		default:

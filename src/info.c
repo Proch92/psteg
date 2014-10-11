@@ -4,6 +4,7 @@
 #include "psteg.h"
 #include "math.h"
 #include "createPNG.h"
+#include "stb_image.h"
 
 int countColors(unsigned char*, int, int, int);
 void lsbanalysis(unsigned char*, int, int, int);
@@ -11,6 +12,11 @@ void lsbanalysis(unsigned char*, int, int, int);
 void info(char* filename) {
 	int width, height, depth;
 	unsigned char *data = stbi_load(filename, &width, &height, &depth, 4); //force alpha channel
+	if(data == NULL) {
+		printf("ERROR: info.c in info(): stbi_load() failed\n");
+		exit(-1);
+	}
+	//printf("data[0]:%d\n", data[0]);
 
 	//print general informations
 	printf("width: %d\n", width);
@@ -24,6 +30,8 @@ void info(char* filename) {
 
 	//lsb analysis
 	lsbanalysis(data, width, height, depth);
+
+	stbi_image_free(data);
 }
 
 //counts colors without alpha channel
@@ -32,31 +40,29 @@ int countColors(unsigned char* data, int width, int height, int depth) {
 	unsigned char *colormap = (unsigned char*) malloc(nbytes);
 	memset(colormap, 0, nbytes);
 
-	long numpixels = width*height;
-	int index;
-	char mask;
 	if(sizeof(int) != 4) {
 		printf("ERROR: info.c in countColors(). sizeof(int) != 4\n");
 		return 0;
 	}
+	long numpixels = width*height;
+	int index;
+	char mask;
 	int i;
-	int pixel;
+	unsigned int pixel;
+	unsigned int* idata = (unsigned int*) data;
 	for(i=0; i!=numpixels; i++) {
-		pixel = *((int*)(data[i*4]));
-		index = (pixel >> 4)/8;
-		mask = (pixel >> 4)%8;
+		pixel = idata[i];
+		index = (pixel >> 8)/8;
+		mask = (pixel >> 8)%8;
 		colormap[index] |= mask;
 	}
 
 	long acc=0;
-	char j;
-	for(i=0; i!=nbytes; i++) {
-		j=0x01;
-		do {
+	unsigned char j;
+	unsigned char k = 1;
+	for(i=0; i!=nbytes; i++)
+		for(j=0x01; j!=0; j<<=1)
 			acc+=(colormap[i] & j)?1:0;
-			j <<= 1;
-		} while(j!=0x80);
-	}
 
 	printf("Number of unique colors: %ld\n", acc);
 
