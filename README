@@ -1,0 +1,30 @@
+Created by Michele Proverbio
+
+Compiling:
+	make
+
+USAGE: 
+	psteg --help
+
+examples:
+	/*basic information and lsb analysis*/
+	psteg test.png
+	/*same as*/
+	psteg -i test.png
+
+	/*-e extract least significant bit from color layers.*/
+	psteg -e -c RGB -n 1 			//extract the least significant bit from RGB layers
+	psteg -e -c A -n 2 test.png 	//extract the two least significant bits from Alpha layer
+	psteg -e -c BR -n 3 test.png 	//extract the three least significant bits from Blue and Red channels (in specified order)
+
+	other valid examples:
+
+	psteg -e -c BARG -n 1 test.png
+	psteg -e -c AR -n 3 test.png
+
+	*IMPORTANT*
+	RG is different from GR
+	RGB is different from BRG
+
+	/*alpha layer analysis*/
+	psteg -a test.png
